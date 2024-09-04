@@ -24,6 +24,7 @@
 	let importFiles = '';
 
 	let inputFiles = '';
+
 	let query = '';
 	let documentsImportInputElement: HTMLInputElement;
 	let tags = [];
@@ -88,7 +89,7 @@
 				tags?.length > 0
 					? {
 							tags: tags
-					  }
+						}
 					: null
 			).catch((error) => {
 				toast.error(error);
