@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile-custom1
     ports:
-      - 8000:8000
+      - "8000:8000"
     environment:
       HOST: 0.0.0.0
       PORT: 8000
@@ -16,7 +16,7 @@ services:
   # A helper service to run a web-based file manager
   cloudcmd:
     ports:
-      - 8100:8000
+      - "8100:8000"
     volumes:
       - openwebui-data:/openwebui-data
     image: coderaiser/cloudcmd
