@@ -1,0 +1,17 @@
+services:
+  openwebui:
+    build:
+      context: .
+      dockerfile: Dockerfile-custom1
+    ports:
+      - "8000:8000"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8000"
+    volumes:
+      - openwebui-data:/usr/src/app/backend/data
+
+volumes:
+    # Define the volume openwebui-data to persist all system data
+    # This could be made an external volume to host this data on a share, etc.
+    openwebui-data:

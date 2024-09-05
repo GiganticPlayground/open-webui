@@ -1,0 +1,52 @@
+# Dockerfile for combined Frontend and Backend
+# This is a simple 2-step build process.
+# The first step builds the frontend, which uses a Node.js build. This outputs to a build folder.
+# The second step packages the backend, which is a Python API. This step copies the frontend build output from the first step.
+# The final image is a Python image with the frontend build output and the backend.
+
+# Step 1: Build Frontend
+FROM node:20.10 AS build-frontend
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy the app files which are needed for the frotnend build process
+COPY . ./
+
+# Copy package.json and package-lock.json for the frontend
+COPY package*.json ./
+
+# Install frontend dependencies
+RUN npm install
+
+# Build the frontend
+RUN npm run build
+
+
+# Step 2: Package the Backend
+FROM python:3.11 AS package-backend
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy the backend requirements file
+COPY backend/requirements.txt ./backend/
+
+# Install backend dependencies
+RUN pip install --upgrade pip && pip install -r backend/requirements.txt
+
+# Copy the backend
+COPY backend ./backend
+
+# Copy the frontend build output from the frontend build step (which seems to be all we need)
+COPY --from=build-frontend /usr/src/app/build ./build
+
+# Copy other files that are needed (the specific files come from inspecting a standard Open-WebUi Docker build)
+COPY CHANGELOG.md ./
+COPY package.json ./
+
+# Expose the desired port
+EXPOSE 8000
+
+# Define an entry point to run the start script
+ENTRYPOINT ["./backend/start.sh"]
