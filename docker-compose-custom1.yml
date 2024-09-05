@@ -1,15 +1,38 @@
 services:
+  # The main OpenWebUI service
   openwebui:
     build:
       context: .
       dockerfile: Dockerfile-custom1
     ports:
-      - "8000:8000"
+      - 8000:8000
     environment:
-      HOST: "0.0.0.0"
-      PORT: "8000"
+      HOST: 0.0.0.0
+      PORT: 8000
     volumes:
+      # Persist our data in a volume
       - openwebui-data:/usr/src/app/backend/data
+
+  # A helper service to run a web-based file manager
+  cloudcmd:
+    ports:
+      - 8100:8000
+    volumes:
+      - openwebui-data:/openwebui-data
+    image: coderaiser/cloudcmd
+    environment:
+      - CLOUDCMD_NAME=openwebui-data
+      - CLOUDCMD_THEME=light
+      - CLOUDCMD_CONTACT=false
+      - CLOUDCMD_CONSOLE=false
+      - CLOUDCMD_TERMINAL=false
+      - CLOUDCMD_ONE_FILE_PANEL=false
+      - CLOUDCMD_USERNAME=admin
+      - CLOUDCMD_PASSWORD=${CLOUDCMD_ADMIN_PASSWORD}
+      - CLOUDCMD_ROOT=/openwebui-data
+      - CLOUDCMD_CONFIG_DIALOG=false
+      - CLOUDCMD_AUTH=true
+      - CLOUDCMD_SHOW_FILE_NAME=true
 
 volumes:
     # Define the volume openwebui-data to persist all system data
