@@ -35,6 +35,9 @@ COPY backend/requirements.txt ./backend/
 # Install backend dependencies
 RUN pip install --upgrade pip && pip install -r backend/requirements.txt
 
+# Install other package dependencies
+RUN apt-get -y update && apt-get -y install ffmpeg
+
 # Copy the backend
 COPY backend ./backend
 

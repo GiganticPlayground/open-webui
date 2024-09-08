@@ -4,11 +4,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-custom1
+    # Be sure to expose the port that is also in the .env file
     ports:
       - "8000:8000"
-    environment:
-      HOST: 0.0.0.0
-      PORT: 8000
+    # Bring in all the variables from the .env file
+    env_file:
+      - .env
     volumes:
       # Persist our data in a volume
       - openwebui-data:/usr/src/app/backend/data

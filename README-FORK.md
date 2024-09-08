@@ -1,6 +1,14 @@
-# Open WebUI - Custom Fork
+# Open WebUI - Custom Fork - OpenAI Focused
 
-This repo is all tested on macOS. For other environments, you may need to adjust the instructions. 
+This is a fork of the Open WebUI project that is focused on integrating OpenAI's APIs and excludes Ollama. 
+
+This fork is not affiliated with OpenAI.
+
+This repo is all tested on macOS. For other environments, you may need to adjust the instructions.
+
+## General Dependencies
+
+1. You'll need an OpenAI API Key. You can get one by signing up at https://beta.openai.com/signup/.
 
 ## Running Natively
 
@@ -16,7 +24,7 @@ You'll need to have the following:
 ### First Build and Run
 
 1. Clone the repository
-2. Copy `.env.example` to `.env` and update any values supported by Open WebUI, including OpenAI API Key if you have one that you want to set for the entire instance.
+2. Copy `example-environment-openai-focused.env` to `.env` and update any values supported by Open WebUI, including OpenAI API Key if you have one that you want to set for the entire instance.
 3. From the root of the repository, run `x-native-build.sh` to build the project. This will install all dependencies and build the project. This takes a while, so be patient.
 4. If the build finishes without errors, you can run `x-native-start.sh` to start the backend and frontend. Watch the console for the URLs to access the frontend once it starts.
 5. On the very first build, you'll create an ADMIN USER. Keep track of this user since you'll need it to log in and manage the instance.
@@ -35,8 +43,12 @@ You'll need to have the following:
 ### First Build and Run
 
 1. Clone the repository
-2. Copy `.env.example` to `.env` and update any values supported by Open WebUI, including OpenAI API Key if you have one that you want to set for the entire instance.
+2. Copy `example-environment-openai-focused.env` to `.env` and update any values supported by Open WebUI, including OpenAI API Key if you have one that you want to set for the entire instance.
 3. From the root of the repository, run `x-docker-custom1-build.sh` to build the Docker images. This will build the backend and frontend images. This takes a while, so be patient.
 4. If the build finishes without errors, you can run `x-docker-custom1-up.sh` to start the backend and frontend. Watch the console for the URLs to access the frontend once it starts.
 5. On the very first build, you'll create an ADMIN USER. Keep track of this user since you'll need it to log in and manage the instance.
 6. To stop the containers, run `x-docker-custom1-down.sh`.
+7. To clear out all data and start fresh, run `x-docker-custom1-down.sh --volumes` to wipe out the volumes. Note, you'll have to create your admin user again!
+
+Note that in each of the above scripts (build, up, down) they use standard docker compose build, up and down and so you can pass extra arguments of your choice.
+
