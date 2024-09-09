@@ -43,6 +43,7 @@ You'll need to have the following:
 1. Docker installed on your machine.
 2. Docker Compose installed on your machine.
 3. Access to the Internet so that you can pull the Docker images.
+4. A tls certificate and key pair for the Traefik reverse proxy that the Docker stack stands up. Place **server_certificate.pem** and **server_key.pem** in the **/secrets/** directory. If you're developing, you can generate a self-signed cert for localhost using the [Self-Signed Certificate Generation](_dev_tools/TLS/README.md) tool.
 
 ### First Build and Run
 
@@ -55,4 +56,11 @@ You'll need to have the following:
 7. To clear out all data and start fresh, run `x-docker-custom1-down.sh --volumes` to wipe out the volumes. Note, you'll have to create your admin user again!
 
 Note that in each of the above scripts (build, up, down) they use standard docker compose build, up and down and so you can pass extra arguments of your choice.
+
+After you stand up the stack, you can access the following: (replace localhost with the FQDN of your host matching your certificate.)
+- **Frontend**: https://localhost:8443
+- **Traefik Dashboard**: https://localhost:8080
+- **Cloud Commander**: https://localhost:88143 (This is a helpful file manager to visualize the openwebui-data volume. This should not be exposed in production.)
+
+
 

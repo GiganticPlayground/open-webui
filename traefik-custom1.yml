@@ -1,0 +1,30 @@
+# Ensure your entrypoints here match what you're exposing on the traefik service on docker-compose-custom1.yml.
+entryPoints:
+  https-openwebui:
+    address: ":8443"
+  https-cloudcmd:
+    address: ":8143"
+  https-dashboard:
+    address: ":8080"
+
+# The docker provider is necessary so that Traefik can analyze Docker service labels
+providers:
+  docker: {}
+
+# Enable the Traefik dashboard
+api:
+  dashboard: true
+
+# Define the TLS configuration for Traefik
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /secrets/server_certificate.pem
+        keyFile: /secrets/server_key.pem
+
+  certificates:
+    - certFile: /secrets/server_certificate.pem
+      keyFile: /secrets/server_key.pem
+      stores:
+        - default

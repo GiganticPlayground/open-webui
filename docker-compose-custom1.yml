@@ -4,20 +4,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-custom1
-    # Be sure to expose the port that is also in the .env file
-    ports:
-      - "8000:8000"
-    # Bring in all the variables from the .env file
     env_file:
       - .env
     volumes:
       # Persist our data in a volume
       - openwebui-data:/usr/src/app/backend/data
+    labels:
+      # Traefik labels to route traffic to OpenWebUI
+      - "traefik.enable=true"
+      - "traefik.http.routers.openwebui.rule=Host(`localhost`)"
+      - "traefik.http.routers.openwebui.entrypoints=https-openwebui"
+      - "traefik.http.routers.openwebui.tls=true"
+      - "traefik.http.services.openwebui.loadbalancer.server.port=8000"
 
   # A helper service to run a web-based file manager
   cloudcmd:
-    ports:
-      - "8100:8000"
     volumes:
       - openwebui-data:/openwebui-data
     image: coderaiser/cloudcmd
@@ -34,8 +35,42 @@ services:
       - CLOUDCMD_CONFIG_DIALOG=false
       - CLOUDCMD_AUTH=true
       - CLOUDCMD_SHOW_FILE_NAME=true
+    labels:
+      # Traefik labels to route traffic to CloudCmd
+      - "traefik.enable=true"
+      - "traefik.http.routers.cloudcmd.rule=Host(`localhost`)"
+      - "traefik.http.routers.cloudcmd.entrypoints=https-cloudcmd"
+      - "traefik.http.routers.cloudcmd.tls=true"
+      - "traefik.http.services.cloudcmd.loadbalancer.server.port=8000"
+
+  # Traefik reverse proxy service
+  traefik:
+    image: traefik:v3.1.2
+    command:
+      # Specify the configuration file
+      - "--configFile=/traefik.yml"
+    ports:
+      # Ensure these ports match the entrypoints in traefik-custom1.yml
+      - "8443:8443" # Expose HTTPS port for openwebui
+      - "8143:8143" # Expose HTTPS port for cloudcmd
+      - "8080:8080" # The Web UI (enabled by --api)
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # Directory containing self-signed certificates
+      - "./secrets/:/secrets/"
+      # Traefik Configuration file
+      - "./traefik-custom1.yml:/traefik.yml"
+    labels:
+      # Dashboard basic authentication middleware
+      - "traefik.http.routers.traefik.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_USERS}"
+      # Dashboard route configuration
+      - "traefik.http.routers.traefik.rule=Host(`localhost`)"
+      - "traefik.http.routers.traefik.entrypoints=https-dashboard"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.service=api@internal"
 
 volumes:
-    # Define the volume openwebui-data to persist all system data
-    # This could be made an external volume to host this data on a share, etc.
-    openwebui-data:
+  # Define the volume openwebui-data to persist all system data
+  # This could be made an external volume to host this data on a share, etc.
+  openwebui-data:
