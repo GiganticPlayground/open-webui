@@ -10,6 +10,10 @@ This repo is all tested on macOS. For other environments, you may need to adjust
 
 1. You'll need an OpenAI API Key. You can get one by signing up at https://beta.openai.com/signup/.
 
+##  Self-Signed Certificate Generation for Development
+
+Refer to the [Self-Signed Certificate Generation](_dev_tools/TLS/README.md) section for generating self-signed certificates for development.
+
 ## Running Natively
 
 This section discusses how to build and run the Open WebUI project natively on your machine. This is useful for development and testing purposes.

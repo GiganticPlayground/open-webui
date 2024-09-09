@@ -1,0 +1,21 @@
+# Self-Signed Certificate Generation
+
+## Summary
+
+This is a tool to generate a self-signed certificate set.
+
+This set is suitable for development. For production, you should use a proper CA to sign your certificates.
+
+## Dependencies
+
+- Python3
+
+## Generate Certificates
+
+Note, you only need to GENERATE certs if you are creating a new environment.
+
+To generate certs:
+1. Edit the file `./generate-certs.sh` and change the `make` CN argument to the hostname of the environment you are generating certs for. You can even generate a WILDCARD for all hosts in your environment.
+2. Once you've edited the file, from your terminal, run `./generate-certs.sh`.
+3. Self-signed certs for the domain you specified will be generated in the `./tls-gen/_result/` directory.
+
