@@ -4,8 +4,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-custom1
+    depends_on:
+      - postgres
     env_file:
       - .env
+    environment:
+      # Connect to the PostgreSQL database using environment variables
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     volumes:
       # Persist our data in a volume
       - openwebui-data:/usr/src/app/backend/data
@@ -51,9 +56,9 @@ services:
       - "--configFile=/traefik.yml"
     ports:
       # Ensure these ports match the entrypoints in traefik-custom1.yml
-      - "8443:8443" # Expose HTTPS port for openwebui
-      - "8143:8143" # Expose HTTPS port for cloudcmd
-      - "8080:8080" # The Web UI (enabled by --api)
+      - "8443:8443"  # Expose HTTPS port for openwebui
+      - "8143:8143"  # Expose HTTPS port for cloudcmd
+      - "8080:8080"  # The Web UI (enabled by --api)
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       # Directory containing self-signed certificates
@@ -70,7 +75,21 @@ services:
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.service=api@internal"
 
+  # PostgreSQL database service
+  postgres:
+    image: postgres:16
+    environment:
+      # Use environment variables from the .env file
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      # Persist PostgreSQL data in a volume
+      - postgres-data:/var/lib/postgresql/data
+
 volumes:
   # Define the volume openwebui-data to persist all system data
   # This could be made an external volume to host this data on a share, etc.
   openwebui-data:
+  # Define the volume postgres-data to persist database data
+  postgres-data:
