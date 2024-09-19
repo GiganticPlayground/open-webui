@@ -48,33 +48,6 @@ services:
       - "traefik.http.routers.cloudcmd.tls=true"
       - "traefik.http.services.cloudcmd.loadbalancer.server.port=8000"
 
-  # Traefik reverse proxy service
-  traefik:
-    image: traefik:v3.1.2
-    command:
-      # Specify the configuration file
-      - "--configFile=/traefik.yml"
-    ports:
-      # Ensure these ports match the entrypoints in traefik-custom1.yml
-      - "8443:8443"  # Expose HTTPS port for openwebui
-      - "8143:8143"  # Expose HTTPS port for cloudcmd
-      - "8080:8080"  # The Web UI (enabled by --api)
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      # Directory containing self-signed certificates
-      - "./secrets/:/secrets/"
-      # Traefik Configuration file
-      - "./traefik-custom1.yml:/traefik.yml"
-    labels:
-      # Dashboard basic authentication middleware
-      - "traefik.http.routers.traefik.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_USERS}"
-      # Dashboard route configuration
-      - "traefik.http.routers.traefik.rule=Host(`localhost`)"
-      - "traefik.http.routers.traefik.entrypoints=https-dashboard"
-      - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.routers.traefik.service=api@internal"
-
   # PostgreSQL database service
   postgres:
     image: postgres:16
@@ -86,6 +59,64 @@ services:
     volumes:
       # Persist PostgreSQL data in a volume
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin service
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      # Set the path to the server definitions file
+      - PGADMIN_SERVER_JSON_FILE=/pgadmin4/servers.json
+    volumes:
+      # Persist pgAdmin data in a volume
+      - "pgadmin-data:/var/lib/pgadmin"
+      # Mount the servers.json file into the container
+      - "./_docker_files_custom1/pgadmin-servers.json:/pgadmin4/servers.json"
+    labels:
+      # Traefik labels to route traffic to pgAdmin
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`localhost`)"
+      - "traefik.http.routers.pgadmin.entrypoints=https-pgadmin"
+      - "traefik.http.routers.pgadmin.tls=true"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+
+  # Traefik reverse proxy service
+  traefik:
+    image: traefik:v3.1.2
+    command:
+      # Specify the configuration file
+      - "--configFile=/traefik.yml"
+    ports:
+      # Ensure these ports match the entrypoints in traefik-custom1.yml
+      - "8443:8443"  # Expose HTTPS port for openwebui
+      - "8143:8143"  # Expose HTTPS port for cloudcmd
+      - "8243:8243"  # Expose HTTPS port for pgAdmin
+      - "8080:8080"  # The Web UI (enabled by --api)
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # Directory containing self-signed certificates
+      - "./_docker_files_custom1/secrets/:/secrets/"
+      # Traefik Configuration file
+      - "./_docker_files_custom1/traefik-custom1.yml:/traefik.yml"
+    labels:
+      # Dashboard basic authentication middleware
+      - "traefik.http.routers.traefik.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_USERS}"
+      # Dashboard route configuration
+      - "traefik.http.routers.traefik.rule=Host(`localhost`)"
+      - "traefik.http.routers.traefik.entrypoints=https-dashboard"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.service=api@internal"
 
 volumes:
   # Define the volume openwebui-data to persist all system data
@@ -93,3 +124,5 @@ volumes:
   openwebui-data:
   # Define the volume postgres-data to persist database data
   postgres-data:
+  # Define the volume pgadmin-data to persist pgAdmin data
+  pgadmin-data:

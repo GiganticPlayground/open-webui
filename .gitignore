@@ -309,4 +309,4 @@ cypress/screenshots
 .vscode/settings.json
 
 # Exclude the directory where secrets are placed.
-/secrets/
+/_docker_files_custom1/secrets/

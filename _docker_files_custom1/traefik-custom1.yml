@@ -6,10 +6,14 @@ entryPoints:
     address: ":8143"
   https-dashboard:
     address: ":8080"
+  https-pgadmin:
+    address: ":8243"
 
 # The docker provider is necessary so that Traefik can analyze Docker service labels
 providers:
-  docker: {}
+    docker:
+      # However, we only want to expose services that have the traefik.enable=true label
+      exposedByDefault: false
 
 # Enable the Traefik dashboard
 api:
